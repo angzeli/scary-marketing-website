@@ -211,7 +211,7 @@
   let lastLabel = '';
   function renderLabel() {
     const begging = !on && F.dread > 0.8;
-    const text = on ? 'Sound on' : begging ? 'let me speak' : 'Sound off';
+    const text = F.t(on ? 'sound.on' : begging ? 'sound.beg' : 'sound.off');
     if (text === lastLabel) return;
     lastLabel = text;
     btn.classList.toggle('is-begging', begging);
@@ -231,6 +231,8 @@
     apply(d);
     renderLabel();
   });
+  F.on('lang', renderLabel);
+  renderLabel();
 
   F.audio = {
     sting,

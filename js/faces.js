@@ -126,7 +126,7 @@
   F.silhouette = () => `<svg class="face" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
       <ellipse cx="60" cy="54" rx="22" ry="27" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3" opacity=".55"/>
       <path d="M18,118 C20,98 38,90 60,90 C82,90 100,98 102,118" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3" opacity=".55"/>
-      <text x="60" y="61" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="15" fill="currentColor" opacity=".6">you</text>
+      <text class="silhouette__label" x="60" y="61" text-anchor="middle" font-family="Cormorant Garamond, Noto Serif TC, serif" font-size="15" fill="currentColor" opacity=".6">${F.escape(F.t('team.you.photo'))}</text>
     </svg>`;
 
   /* Sarah K. She's in every testimonial. */
@@ -220,7 +220,7 @@
 
     const ALMOND = 'M40,200 Q400,-50 760,200 Q400,450 40,200 Z';
     wrap.innerHTML = `
-      <svg viewBox="0 0 800 400" role="img" aria-label="An eye, watching you">
+      <svg viewBox="0 0 800 400" role="img" aria-label="${F.escape(F.t('eye.aria'))}">
         <defs>
           <radialGradient id="eye-sclera" cx="50%" cy="50%" r="58%">
             <stop offset="0" stop-color="#f3ece2"/>
@@ -280,6 +280,7 @@
 
   const eye = buildEye();
   if (eye) {
+    F.on('lang', () => eye.svg.setAttribute('aria-label', F.t('eye.aria')));
     const section = document.getElementById('eye');
     const state = {
       visible: false,

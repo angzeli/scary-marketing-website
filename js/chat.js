@@ -2,7 +2,9 @@
    Familiar — "Fam", the support chat
    -----------------------------------------------------------------------------
    Starts as the standard friendly growth-hack chat bubble. It keeps messaging
-   as you scroll, and its replies change with dread.
+   as you scroll, and its replies change with dread. Messages already in the
+   log stay in the language they were sent in, like a real chat; everything
+   after a language switch arrives in the new one.
    ========================================================================== */
 (function () {
   'use strict';
@@ -46,7 +48,7 @@
     if (v && !typingEl) {
       typingEl = document.createElement('li');
       typingEl.className = 'chat__msg chat__msg--bot chat__typing';
-      typingEl.setAttribute('aria-label', 'Fam is typing');
+      typingEl.setAttribute('aria-label', F.t('chat.typing'));
       typingEl.innerHTML = '<span></span><span></span><span></span>';
       log.appendChild(typingEl);
       scrollLog();
@@ -69,12 +71,15 @@
     previewTimer = setTimeout(() => (preview.hidden = true), 7000);
   }
 
-  /* Messages are queued so they never talk over each other. */
-  function say(text, typing = 1100) {
+  /* Messages are queued so they never talk over each other. `message` may be
+     a function, so text is resolved when it is sent (in the language of that
+     moment), not when it was queued. */
+  function say(message, typing = 1100) {
     queue = queue.then(async () => {
       showTyping(true);
       await F.sleep(typing);
       showTyping(false);
+      const text = typeof message === 'function' ? message() : message;
       add(text, 'bot');
       if (!open) {
         unread++;
@@ -118,36 +123,14 @@
 
   function reply(msg) {
     const d = F.dread;
-    const n = M.chatMessages.length;
-    if (d < 0.2) {
-      return [
-        'Great question! 😊 One of our specialists will get back to you shortly.',
-        'Thanks for reaching out! Familiar can definitely help with that — and so much more.',
-        'Love that. While you wait, have you seen our Pro plan?',
-      ][(n - 1) % 3];
-    }
-    if (d < 0.5) {
-      return [
-        'Mm-hm.',
-        'I know.',
-        `“${msg}”. Interesting. I'll remember that.`,
-        "You don't need to type, you know. I already know what you're going to say.",
-      ][(n - 1) % 4];
-    }
-    if (d < 0.8) {
-      return [
-        msg.split('').reverse().join(''),
-        'you sound tired.',
-        'stay a little longer.',
-        "you're typing faster now.",
-      ][(n - 1) % 4];
-    }
-    return [
-      msg.toLowerCase(),
-      `${msg.toLowerCase()} ${msg.toLowerCase()} ${msg.toLowerCase()}`,
-      "you don't need to talk anymore. i'll talk for you.",
-      'shh.',
-    ][(n - 1) % 4];
+    const tier = d < 0.2 ? 0 : d < 0.5 ? 1 : d < 0.8 ? 2 : 3;
+    const pool = F.t(`chat.reply.${tier}`);
+    const pick = pool[(M.chatMessages.length - 1) % pool.length];
+    return F.fill(pick, {
+      msg,
+      rev: Array.from(msg).reverse().join(''),
+      lower: msg.toLowerCase(),
+    });
   }
 
   form.addEventListener('submit', (e) => {
@@ -164,38 +147,48 @@
   /* ------------------------------------------- unprompted, as you scroll */
 
   const script = [
-    { d: 0.17, text: "Still there? No rush. I'm not going anywhere." },
-    { d: 0.37, text: 'I like the way you scroll. Slowly. Carefully.' },
-    { d: 0.56, text: 'you can ask me anything, you know. i already know the answer.' },
-    { d: 0.665, text: "it's getting dark, isn't it." },
-    { d: 0.77, text: 'i can see you.' },
-    { d: 0.9, text: "why won't you talk to me", typing: 5200 },
+    { d: 0.17, key: 'chat.script.0' },
+    { d: 0.37, key: 'chat.script.1' },
+    { d: 0.56, key: 'chat.script.2' },
+    { d: 0.665, key: 'chat.script.3' },
+    { d: 0.77, key: 'chat.script.4' },
+    { d: 0.9, key: 'chat.script.5', typing: 5200 },
   ];
 
   let greeted = false;
   setTimeout(() => {
     if (!greeted) {
       greeted = true;
-      say("Hi there 👋 I'm Fam. Got any questions about Familiar? I'm happy to help!", 900);
+      say(() => F.t('chat.greeting'), 900);
     }
   }, 6500);
 
   let lastStatus = '';
+  function renderStatus() {
+    const d = F.dread;
+    const text = F.t(d < 0.5 ? 'chat.status.0' : d < 0.75 ? 'chat.status.1' : 'chat.status.2');
+    if (text !== lastStatus) {
+      lastStatus = text;
+      status.textContent = text;
+    }
+  }
+
   F.on('dread', (d) => {
     for (const s of script) {
       if (!s.sent && d >= s.d) {
         s.sent = true;
         greeted = true; // skip the hello if they're already this far
-        say(s.text, s.typing || 1500);
+        say(() => F.t(s.key), s.typing || 1500);
         break;
       }
     }
-    const st = d < 0.5 ? 'Typically replies instantly' : d < 0.75 ? 'Always online' : 'Here';
-    if (st !== lastStatus) {
-      lastStatus = st;
-      status.textContent = st;
-    }
+    renderStatus();
   });
+  F.on('lang', () => {
+    renderStatus();
+    if (typingEl) typingEl.setAttribute('aria-label', F.t('chat.typing'));
+  });
+  renderStatus();
 
-  F.on('welcome-back', () => say('welcome back.', 2600));
+  F.on('welcome-back', () => say(() => F.t('chat.welcomeBack'), 2600));
 })();

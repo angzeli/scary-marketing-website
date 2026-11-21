@@ -43,33 +43,36 @@
     set(key, value) {
       try { localStorage.setItem('familiar.' + key, value); } catch (e) { /* ignore */ }
     },
+    /* forget the visitor, but not the language they chose to read in */
     clear() {
       try {
         Object.keys(localStorage)
-          .filter((k) => k.startsWith('familiar.'))
+          .filter((k) => k.startsWith('familiar.') && k !== 'familiar.lang')
           .forEach((k) => localStorage.removeItem(k));
       } catch (e) { /* ignore */ }
     },
   };
 
-  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  /* Wording lives in js/strings.js ('dur', 'clock'); this only does the maths. */
   F.fmtDuration = (ms) => {
-    const s = Math.max(1, Math.round(ms / 1000));
-    const days = Math.floor(s / 86400);
-    if (days >= 1) return plural(days, 'day');
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const r = s % 60;
-    if (h) return m ? `${plural(h, 'hour')} and ${plural(m, 'minute')}` : plural(h, 'hour');
-    if (m) return r ? `${plural(m, 'minute')} and ${plural(r, 'second')}` : plural(m, 'minute');
-    return plural(r, 'second');
+    const total = Math.max(1, Math.round(ms / 1000));
+    const d = Math.floor(total / 86400);
+    return F.t('dur', {
+      d,
+      h: d ? 0 : Math.floor(total / 3600),
+      m: d ? 0 : Math.floor((total % 3600) / 60),
+      s: d ? 0 : total % 60,
+    });
   };
   F.fmtClock = (ms) => {
     const s = Math.floor(ms / 1000);
-    return `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`;
+    return F.t('clock', { m: Math.floor(s / 60), s: s % 60 });
   };
   F.localTime = () =>
-    new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase().replace(/\s/g, ' ');
+    new Date()
+      .toLocaleTimeString(F.locale ? F.locale() : [], { hour: 'numeric', minute: '2-digit' })
+      .toLowerCase()
+      .replace(/\s/g, '\u202f');
 
   /* What the browser volunteers about itself. Read locally, never transmitted. */
   F.env = () => {
@@ -80,14 +83,14 @@
       /Firefox\/|FxiOS/.test(ua) ? 'Firefox' :
       /SamsungBrowser/.test(ua) ? 'Samsung Internet' :
       /Chrome\/|CriOS/.test(ua) ? 'Chrome' :
-      /Safari\//.test(ua) ? 'Safari' : 'your browser';
+      /Safari\//.test(ua) ? 'Safari' : null;
     const os =
       /iPhone|iPad|iPod/.test(ua) ? 'iOS' :
       /Android/.test(ua) ? 'Android' :
       /CrOS/.test(ua) ? 'ChromeOS' :
       /Mac OS X|Macintosh/.test(ua) ? 'macOS' :
       /Windows/.test(ua) ? 'Windows' :
-      /Linux/.test(ua) ? 'Linux' : 'your device';
+      /Linux/.test(ua) ? 'Linux' : null;
     let zone = '';
     try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* ignore */ }
     const city = zone.includes('/') ? zone.split('/').pop().replace(/_/g, ' ') : '';
@@ -377,14 +380,12 @@
 
   /* ---------------------------------------------------- tab title & icon */
 
-  const BASE_TITLE = document.title;
   const favicon = document.getElementById('favicon');
   let titleTimer = 0;
-  const restingTitle = () =>
-    F.dread < 0.6 ? BASE_TITLE : F.dread < 0.85 ? 'Familiar — we truly get you' : 'you are not alone';
+  const restingTitle = () => F.t(F.dread < 0.6 ? 'title.base' : F.dread < 0.85 ? 'title.mid' : 'title.end');
 
   F.on('dread', (d) => {
-    if (!document.hidden && !titleTimer) {
+    if (F.t && !document.hidden && !titleTimer) {
       const t = restingTitle();
       if (document.title !== t) document.title = t;
     }
@@ -398,9 +399,9 @@
     titleTimer = 0;
     if (document.hidden) {
       M.hiddenCount++;
-      document.title = d < 0.3 ? 'Don’t forget about us 👋' : d < 0.7 ? 'come back' : 'i can still see you';
+      document.title = F.t(d < 0.3 ? 'title.hidden.0' : d < 0.7 ? 'title.hidden.1' : 'title.hidden.2');
     } else {
-      document.title = d < 0.3 ? 'Welcome back! — Familiar' : 'there you are';
+      document.title = F.t(d < 0.3 ? 'title.back.0' : 'title.back.1');
       titleTimer = setTimeout(() => {
         titleTimer = 0;
         document.title = restingTitle();
