@@ -95,7 +95,11 @@
   function renderHero() {
     mockHello.textContent = F.t(`mock.${returning ? 'again' : 'hello'}.${dayPart()}`);
     mockLearn.textContent = returning ? '100%' : learned + '%';
-    if (!returning) return; // the normal copy is page copy, handled by i18n.js
+    if (!returning) {
+      // the normal copy is page copy, handled by i18n.js; at 3 a.m. the badge knows
+      if (F.memory && F.memory.witching) heroPill.textContent = F.t('hero.witching');
+      return;
+    }
     heroTitle.innerHTML = F.t('hero.wb.title');
     heroSub.textContent =
       returning.kind === 'leave'
@@ -116,7 +120,7 @@
   function welcomeBack(kind, awayMs) {
     returning = { kind, awayMs };
     html.classList.add('is-returning');
-    F.floor = 0.1; // it never quite goes back to normal
+    F.floor = Math.max(F.floor, 0.1); // it never quite goes back to normal
     renderHero();
     F.refreshDread();
     F.emit('welcome-back', kind);
@@ -125,6 +129,33 @@
   renderHero();
   const seen = Number(F.store.get('seen'));
   if (seen) welcomeBack('return', Date.now() - seen);
+
+  /* ======================================================= TESTIMONIALS == */
+  /* From the third visit on, Sarah's third review is replaced by one from you. */
+
+  if (F.memory && F.memory.visits >= 3) {
+    const you = $$('.quote')[2];
+    if (you) {
+      const quote = you.querySelector('blockquote');
+      const role = you.querySelector('[data-i18n="cust.3.role"]');
+      const name = you.querySelector('figcaption strong');
+      const avatar = you.querySelector('.avatar');
+      // this card is ours now, not page copy: take it away from i18n.js
+      delete quote.dataset.i18n;
+      delete role.dataset.i18n;
+      you.classList.add('quote--you');
+      avatar.innerHTML = F.silhouette();
+      const renderYou = () => {
+        quote.textContent = F.t('cust.you.quote');
+        name.textContent = F.t('cust.you.name');
+        role.textContent = F.t('cust.you.role', { n: F.memory.visits });
+        const label = avatar.querySelector('.silhouette__label');
+        if (label) label.textContent = F.t('team.you.photo');
+      };
+      renderYou();
+      F.on('lang', renderYou);
+    }
+  }
 
   /* ============================================================== STATS == */
   /* Formats differ by language (10k+ vs 10,000+, 2.4M vs 240萬), so each stat
@@ -398,6 +429,14 @@
     () => F.t('mono.turn'),
   ];
 
+  // a returning visitor hears about last time, right after "you've been here for…"
+  const last = F.memory && F.memory.previous;
+  if (last && (last.depth >= 0.95 || last.ms >= 15000)) {
+    lines.splice(2, 0, () =>
+      last.depth >= 0.95 ? F.t('mono.last.end') : F.t('mono.last.stayed', { d: F.fmtDuration(last.ms) })
+    );
+  }
+
   const mono = $('monologue');
   const monoLine = $('mono-line');
   const monoProgress = $('mono-progress');
@@ -569,6 +608,7 @@
 
   $('forget-link').addEventListener('click', (e) => {
     e.preventDefault();
+    F.forgetting = true;
     F.store.clear();
     location.href = location.pathname;
   });

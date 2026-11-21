@@ -382,7 +382,9 @@
 
   const favicon = document.getElementById('favicon');
   let titleTimer = 0;
-  const restingTitle = () => F.t(F.dread < 0.6 ? 'title.base' : F.dread < 0.85 ? 'title.mid' : 'title.end');
+  // each page names itself (<html data-page="policy">); the later titles are shared
+  const BASE_TITLE_KEY = root.dataset.page === 'policy' ? 'policy.docTitle' : 'title.base';
+  const restingTitle = () => F.t(F.dread < 0.6 ? BASE_TITLE_KEY : F.dread < 0.85 ? 'title.mid' : 'title.end');
 
   F.on('dread', (d) => {
     if (F.t && !document.hidden && !titleTimer) {

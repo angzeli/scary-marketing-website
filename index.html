@@ -42,12 +42,15 @@
   <script defer src="js/core.js"></script>
   <script defer src="js/strings.js"></script>
   <script defer src="js/i18n.js"></script>
+  <script defer src="js/memory.js"></script>
   <script defer src="js/faces.js"></script>
   <script defer src="js/audio.js"></script>
   <script defer src="js/chat.js"></script>
+  <script defer src="js/layers.js"></script>
   <script defer src="js/sections.js"></script>
 </head>
 <body>
+  <!-- Hi. Since you're reading the source: everything on this page is true. -->
   <a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
 
   <!-- Atmosphere. Opacity of each layer is driven by the scroll-linked --dread value. -->
@@ -111,7 +114,7 @@
             <span class="pill__arrow" aria-hidden="true">→</span>
           </a>
           <h1 class="hero__title reveal" id="hero-title" data-i18n-html="hero.title">The assistant that truly <span class="grad">gets you.</span></h1>
-          <p class="hero__sub reveal" id="hero-sub" data-i18n="hero.sub">Familiar learns your routines, anticipates what you need, and quietly takes care of the rest — so you can get back to being you.</p>
+          <p class="hero__sub reveal"><span id="hero-sub" data-i18n="hero.sub">Familiar learns your routines, anticipates what you need, and quietly takes care of the rest — so you can get back to being you.</span> <span class="ink" data-i18n="ink.1" aria-hidden="true">help me</span></p>
           <div class="hero__ctas reveal">
             <a class="btn btn--primary btn--lg" href="#pricing" data-i18n="hero.cta.trial">Start free trial</a>
             <a class="btn btn--ghost btn--lg" href="#how">
@@ -195,7 +198,7 @@
         <header class="section__head reveal">
           <p class="eyebrow" data-i18n="feat.eyebrow">Features</p>
           <h2 data-i18n="feat.title">Everything you need. Nothing you don't.</h2>
-          <p class="section__lede" data-i18n="feat.lede">Familiar plugs into the tools you already use and learns how you work — then works that way, too.</p>
+          <p class="section__lede"><span data-i18n="feat.lede">Familiar plugs into the tools you already use and learns how you work — then works that way, too.</span> <span class="ink" data-i18n="ink.2" aria-hidden="true">it's in the walls</span></p>
         </header>
 
         <div class="features__grid">
@@ -246,6 +249,7 @@
     <!-- ========================================================= ACT II -->
 
     <!-- TESTIMONIALS -->
+    <!-- sarah wrote all of these. sarah wrote all of these. sarah wrote all of these. -->
     <section class="section testimonials" id="customers" data-dread="0.16" data-label="the testimonials">
       <div class="container">
         <header class="section__head reveal">
@@ -279,7 +283,7 @@
             </figcaption>
           </figure>
         </div>
-        <p class="testimonials__foot reveal"><span data-i18n="cust.foot">★★★★★ 4.9 from 12,000+ reviews · </span><span data-i18n="cust.verified" data-glitch="every one of them is Sarah">verified customers only</span></p>
+        <p class="testimonials__foot reveal"><span data-i18n="cust.foot">★★★★★ 4.9 from 12,000+ reviews · </span><span data-i18n="cust.verified" data-glitch="every one of them is Sarah">verified customers only</span> <span class="ink" data-i18n="ink.3" aria-hidden="true">sarah is still here</span></p>
       </div>
     </section>
 
@@ -411,7 +415,7 @@
         </div>
 
         <p class="pricing__fine reveal"><span data-i18n="price.fine">All plans include a 14-day free trial. Cancel anytime.*</span><br>
-          <small data-i18n="price.fine.small">* Cancellation requests are reviewed by Familiar. Familiar has never approved one.</small></p>
+          <small><span data-i18n="price.fine.small">* Cancellation requests are reviewed by Familiar. Familiar has never approved one.</span> <span class="ink" data-i18n="ink.4" aria-hidden="true">we lied about the trial</span></small></p>
       </div>
     </section>
 
@@ -491,6 +495,7 @@
     </section>
 
     <!-- ======================================================== ACT III -->
+    <!-- you're reading the source because you think it can't see you in here. -->
 
     <!-- TEAM -->
     <section class="section team" id="team" data-dread="0.76" data-label="the team">
@@ -582,9 +587,9 @@
         <div>
           <h4 data-i18n="footer.legal">Legal</h4>
           <ul>
-            <li><a href="#faq" data-i18n-html="footer.privacy">Privacy <em>there is none</em></a></li>
-            <li><a href="#faq" data-i18n-html="footer.terms">Terms <em>eternal</em></a></li>
-            <li><a href="#product" data-i18n-html="footer.cookies">Cookies <em>you accepted</em></a></li>
+            <li><a href="privacy.html" data-i18n-html="footer.privacy">Privacy <em>there is none</em></a></li>
+            <li><a href="privacy.html#p6" data-i18n-html="footer.terms">Terms <em>eternal</em></a></li>
+            <li><a href="privacy.html#p3" data-i18n-html="footer.cookies">Cookies <em>you accepted</em></a></li>
           </ul>
         </div>
         <div>
@@ -596,7 +601,7 @@
         </div>
       </div>
       <div class="footer__base">
-        <p data-i18n="footer.copy">© 2026–∞ Familiar Inc. All rights reserved. All of yours, too.</p>
+        <p><span data-i18n="footer.copy">© 2026–∞ Familiar Inc. All rights reserved. All of yours, too.</span> <span class="ink" data-i18n="ink.5" aria-hidden="true">you were here</span></p>
         <p class="footer__truth" data-i18n="footer.truth">Familiar is fictional. Everything it seemed to know was worked out inside your own browser and never left it.</p>
       </div>
     </div>

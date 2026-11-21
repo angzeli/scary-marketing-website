@@ -42,6 +42,23 @@ The footer's **Leave** link takes you back to the top, which now says
 *Welcome back*. So does the page on your next visit. **Forget me** in the
 footer resets that.
 
+### Beneath the page
+
+There are more layers for people who look around rather than down:
+
+| Layer | What happens |
+| --- | --- |
+| **Trying to leave** | Move the mouse up toward the tabs (or fling back up on a phone) and you get the classic "Wait! Before you go 👋" discount popup. Later it says *We'll miss you* and its "No thanks" button edges away. At the end: *you can't leave*, with two buttons that both say Stay. |
+| **Stopping** | Stop moving for a while and the room dims. *Still there?* |
+| **The console** | The usual "Hey there, curious one, we're hiring!" banner, until it asks why you're looking in there. |
+| **Selecting text** | Some phrases are written in invisible ink. |
+| **Copying text** | You get the "Read more at…" footer that real sites add, which escalates. |
+| **Printing** | There's nothing to print. |
+| **Coming back** | The page counts your visits and remembers how long you stayed last time and how far you got. Fam greets you again, the monologue brings it up, and from your third visit one of the testimonials is yours. |
+| **3 a.m.** | Between 3:00 and 3:59 local time, the page starts already dim. |
+| **The privacy policy** | `privacy.html` is a standard-looking policy that darkens as you read. It quotes your device, redacts itself, keeps updating its own date, and ends with your signature. |
+| **Getting lost** | `404.html` is cheerful, at first. |
+
 </details>
 
 ## How it works
@@ -63,16 +80,21 @@ Everything hangs off one number: **dread**, from `0` (top of the page) to
 - Other modules subscribe with `Familiar.on('dread', d => …)`.
 
 ```
-index.html             all markup, top to bottom (and all English page copy)
+index.html             the landing page, top to bottom (and its English copy)
+privacy.html           the privacy policy (same engine, its own copy)
+404.html               self-contained "page not found"
 css/styles.css         styles; colours come from the live custom properties
 js/core.js             utilities, dread engine, session observer, glitch, tab title/favicon
 js/strings.js          message dictionaries: generated English + all Traditional Chinese
 js/i18n.js             language engine: F.t(), F.setLang(), the EN | 繁中 switch
+js/memory.js           what is remembered between visits; the 3 a.m. check
 js/faces.js            SVG face generator, cursor-tracking pupils, the eye, the scare
 js/audio.js            opt-in Web Audio soundscape (all synthesised, no audio files)
 js/chat.js             "Fam", the support chat
-js/sections.js         per-section behaviour (pricing, FAQ, team, monologue, …)
-scripts/check-i18n.js  fails if any language is missing a message (runs in CI)
+js/layers.js           exit intent, idle veil, console, clipboard, print
+js/sections.js         landing-page behaviour (pricing, FAQ, team, monologue, …)
+js/policy.js           privacy-policy behaviour (live details, ticking date, signature)
+scripts/check-i18n.js  fails if any page is missing a message in any language (runs in CI)
 assets/                favicons
 ```
 
@@ -124,6 +146,9 @@ It's a static site, so any static host works. For **GitHub Pages**:
 This is a horror piece. It contains unsettling imagery and **one sudden
 full-screen jump scare** near the end. It never flashes repeatedly.
 
+The exit-intent popup never traps you: Esc, a click outside it, or either
+button always closes it, and each version appears at most once per visit.
+
 - `prefers-reduced-motion` is respected: no shaking, jitter, film-grain
   animation or ghost cursor. The scare still appears, but without motion.
 - Sound is **off by default** and is only ever started by clicking the
@@ -138,9 +163,23 @@ full-screen jump scare** near the end. It never flashes repeatedly.
 Everything the site seems to "know" about you (local time, timezone,
 browser, OS, screen size, battery, scroll behaviour, chat messages) is read
 or computed **inside your own browser** and is never sent anywhere. There
-are no analytics, cookies or network requests apart from loading Google
-Fonts. The only thing stored is a single `localStorage` timestamp, so the
-page can welcome you back. **Forget me** in the footer clears it.
+are no analytics, no cookies and no network requests apart from loading
+Google Fonts.
+
+A few small things are kept in `localStorage`, in your browser only:
+
+| Key | What it holds |
+| --- | --- |
+| `familiar.lang` | the language you chose |
+| `familiar.seen` | when you last reached the end of the page |
+| `familiar.visits` | how many times you've opened the landing page |
+| `familiar.last` | your previous visit's length, how far down you got, and when |
+
+Nothing you type is stored. **Forget me** in the footer clears all of it
+except your language.
+
+When you copy text from the page (not from a text field), a line is added
+to the end of what you copied. That's the "Read more at…" layer.
 
 ## License
 
