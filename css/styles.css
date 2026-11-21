@@ -1378,6 +1378,194 @@ html.act-3 .brand__word { letter-spacing: -0.02em; }
 html.act-3 .nav__links { opacity: 0.5; }
 .nav__links { transition: opacity 1.2s ease; }
 
+/* ============================================================= LAYERS ==== */
+
+/* hidden ink: invisible until selected */
+.ink { color: transparent; }
+.ink::selection { color: #d4353b; background: rgba(212, 53, 59, 0.16); }
+
+/* exit intent */
+.exit {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(12, 10, 24, 0.42);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  animation: fade 0.25s ease;
+}
+.exit[hidden] { display: none; }
+.exit[data-tier="1"] { background: rgba(30, 20, 20, 0.55); }
+.exit[data-tier="2"] { background: rgba(18, 0, 2, 0.74); }
+.exit__card {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 38px 30px 28px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--card);
+  color: var(--fg);
+  text-align: center;
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.55);
+  animation: rise 0.35s cubic-bezier(.2, .8, .2, 1);
+}
+.exit__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fg) 7%, transparent);
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.exit__eyebrow { color: var(--accent); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.exit__title { margin-top: 8px; font-size: 1.9rem; }
+.exit__text { margin-top: 12px; color: var(--muted); }
+.exit__timer {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.exit__timer[hidden] { display: none; }
+.exit__timer b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.exit__actions { display: grid; gap: 10px; margin-top: 22px; }
+.exit__actions .btn { width: 100%; white-space: normal; }
+.exit [data-exit="no"] { transition: transform 0.25s cubic-bezier(.2, .8, .2, 1); }
+.exit[data-tier="1"] .exit__title { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 2.3rem; }
+.exit[data-tier="2"] .exit__card { border-color: rgba(179, 20, 28, 0.35); background: #0b0707; color: var(--bone); }
+.exit[data-tier="2"] .exit__eyebrow { color: #8a7f70; }
+.exit[data-tier="2"] .exit__title { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 2.7rem; color: #e0383e; }
+.exit[data-tier="2"] .exit__text { color: #b9ad9c; }
+.exit[data-tier="2"] .btn--primary { background: #a8121b; }
+.exit[data-tier="2"] .btn--ghost { border-color: rgba(255, 255, 255, 0.14); background: transparent; color: var(--bone); }
+@keyframes fade { from { opacity: 0; } }
+
+/* idle veil: decorative, never blocks a click */
+.idle {
+  position: fixed;
+  inset: 0;
+  z-index: 58;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.8) 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.idle.is-on { opacity: 1; transition: opacity 4s ease; }
+.idle__text {
+  position: absolute;
+  top: calc(84px + 7vh);
+  left: 16px;
+  right: 16px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: #e4dccf;
+  text-align: center;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.idle.is-on .idle__text { opacity: 1; transition: opacity 2s ease 2.5s; }
+
+/* the third testimonial, once it's yours */
+.quote--you { outline: 1.5px dashed color-mix(in srgb, var(--fg) 28%, transparent); outline-offset: -1.5px; }
+.quote--you .avatar { background: transparent; color: var(--muted); }
+
+/* print: there's nothing to print */
+.print-only { display: none; }
+@media print {
+  @page { margin: 0; }
+  html, body { background: #fff !important; color: #111 !important; }
+  body > :not(.print-only) { display: none !important; }
+  .print-only {
+    display: grid !important;
+    place-content: center;
+    gap: 14pt;
+    min-height: 100vh;
+    font-family: var(--serif);
+    color: #111;
+    text-align: center;
+  }
+  .print-only__title { font-size: 28pt; }
+  .print-only__text { font-size: 16pt; font-style: italic; }
+}
+
+/* ===================================================== PRIVACY POLICY ==== */
+
+.policy { padding: 64px 0 0; }
+.policy__wrap { max-width: 760px; margin-inline: auto; padding-inline: 24px; }
+.policy__head h1 { margin-top: 6px; font-size: clamp(2.4rem, 5vw, 3.4rem); font-weight: 800; letter-spacing: -0.035em; }
+.policy__updated { margin-top: 14px; color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.policy__updated time { color: var(--fg); font-weight: 600; }
+.policy__note { margin-top: 16px; color: var(--muted); }
+.policy__toc {
+  margin-top: 36px;
+  padding: 22px 26px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+}
+.policy__toc-title { color: var(--muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.policy__toc ol { margin-top: 10px; padding-left: 1.4em; list-style: decimal; columns: 2; column-gap: 36px; font-size: 0.95rem; }
+.policy__toc li { margin: 4px 0; break-inside: avoid; }
+.policy__toc a { color: var(--accent); }
+.policy__toc a:hover { text-decoration: underline; }
+.policy__body { display: grid; gap: 52px; margin-top: 60px; }
+.policy__body h2 { display: flex; gap: 0.5em; font-size: 1.45rem; }
+.policy__num { color: var(--muted); font-variant-numeric: tabular-nums; }
+.policy__body p,
+.policy__body ul { margin-top: 14px; color: color-mix(in srgb, var(--fg) 86%, var(--bg)); line-height: 1.75; }
+.policy__body ul { padding-left: 1.3em; list-style: disc; }
+.policy__body li + li { margin-top: 6px; }
+.policy__late p { font-family: var(--serif); font-size: 1.2rem; }
+.pv {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 0.88em;
+}
+.redact {
+  border-radius: 2px;
+  background: var(--fg);
+  color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.redact::selection { background: #b3141c; color: #fff; }
+.policy__sign { padding-block: 34vh 26vh; text-align: center; }
+.policy__last { font-family: var(--serif); font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.35; color: var(--bone); text-wrap: balance; }
+.policy__agreed { margin-top: 26px; color: var(--muted); font-family: var(--mono); font-size: 0.88rem; }
+.policy__agreed em { font-style: normal; color: #d4353b; }
+.policy__signature {
+  margin-top: 18px;
+  font-family: var(--serif);
+  font-size: 3.4rem;
+  font-style: italic;
+  color: #d4353b;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 2.4s ease 0.6s, transform 2.4s ease 0.6s;
+}
+.policy__sign.is-signed .policy__signature { opacity: 1; transform: none; }
+.footer--slim { padding: 40px 0 110px; }
+.footer--slim .footer__base { margin-top: 0; }
+
 /* ================================================ TRADITIONAL CHINESE ==== */
 /* Hidden until i18n.js has swapped the copy in (the inline script in <head>
    un-hides it after 2.5s regardless, so a failure can never blank the page). */
@@ -1409,6 +1597,8 @@ html.i18n-wait body { opacity: 0; }
 :lang(zh-Hant) .eye__caption { letter-spacing: 0.08em; }
 :lang(zh-Hant) .finale__line { letter-spacing: 0.04em; }
 :lang(zh-Hant) .eyebrow { letter-spacing: 0.18em; }
+:lang(zh-Hant) :is(.idle__text, .exit__title, .policy__late p, .policy__signature, .print-only__text) { font-style: normal; }
+:lang(zh-Hant) .idle__text { letter-spacing: 0.08em; }
 
 /* ======================================================== RESPONSIVE ==== */
 
@@ -1468,6 +1658,9 @@ html.i18n-wait body { opacity: 0; }
   .chat__preview-close { left: auto; right: -6px; top: -8px; }
   .cookie__text { font-size: 0.82rem; }
   .monologue__line { max-width: 16ch; }
+  .policy__wrap { padding-inline: 16px; }
+  .policy__toc ol { columns: 1; }
+  .exit__card { padding: 34px 20px 22px; }
 }
 
 /* ===================================================== REDUCED MOTION ==== */
