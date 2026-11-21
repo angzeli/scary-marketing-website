@@ -155,13 +155,31 @@
     { d: 0.9, key: 'chat.script.5', typing: 5200 },
   ];
 
+  // Visitors who start part-way into the story (3 a.m., or a "welcome back")
+  // skip the messages that belong to the part they never saw.
+  script.forEach((s) => {
+    if (s.d <= F.floor) s.sent = true;
+  });
+
+  /* The hello. A personal one (returning visitor, 3 a.m., the policy page)
+     comes sooner and is always said; the generic one is skipped if the
+     visitor has already scrolled far enough for Fam to have moved on. */
+  const mem = F.memory;
+  const greetingKey =
+    document.documentElement.dataset.page === 'policy' ? 'chat.greeting.policy'
+      : !mem ? 'chat.greeting'
+        : mem.witching ? 'chat.greeting.witching'
+          : mem.visits >= 4 ? 'chat.greeting.always'
+            : mem.visits >= 2 ? 'chat.greeting.again'
+              : 'chat.greeting';
+  const personal = greetingKey !== 'chat.greeting';
   let greeted = false;
   setTimeout(() => {
-    if (!greeted) {
+    if (!greeted || personal) {
       greeted = true;
-      say(() => F.t('chat.greeting'), 900);
+      say(() => F.t(greetingKey), 900);
     }
-  }, 6500);
+  }, personal ? 2500 : 6500);
 
   let lastStatus = '';
   function renderStatus() {
