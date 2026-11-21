@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Familiar — The AI companion that truly gets you</title>
+  <meta name="description" content="Familiar learns your routines, anticipates what you need, and quietly takes care of the rest — so you can get back to being you.">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:title" content="Familiar — The AI companion that truly gets you">
+  <meta property="og:description" content="Software that feels familiar.">
+  <meta property="og:type" content="website">
+  <link rel="icon" id="favicon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <script defer src="js/core.js"></script>
+  <script defer src="js/faces.js"></script>
+  <script defer src="js/audio.js"></script>
+  <script defer src="js/chat.js"></script>
+  <script defer src="js/sections.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Atmosphere. Opacity of each layer is driven by the scroll-linked --dread value. -->
+  <div class="fx fx-vignette" aria-hidden="true"></div>
+  <div class="fx fx-scanlines" aria-hidden="true"></div>
+  <div class="fx fx-grain" aria-hidden="true"></div>
+
+  <!-- ============================================================ NAV -->
+  <header class="nav" id="top">
+    <div class="container nav__inner">
+      <a class="brand" href="#product" aria-label="Familiar — home">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+          <defs>
+            <linearGradient id="bm-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#6c5ce7"/>
+              <stop offset="1" stop-color="#ec7fb0"/>
+            </linearGradient>
+            <radialGradient id="bm-blood" cx=".5" cy=".5" r=".6">
+              <stop offset="0" stop-color="#d8cfc0"/>
+              <stop offset=".75" stop-color="#b9a99a"/>
+              <stop offset="1" stop-color="#6d1717"/>
+            </radialGradient>
+          </defs>
+          <circle cx="16" cy="16" r="14" fill="url(#bm-grad)"/>
+          <circle class="brand__blood" cx="16" cy="16" r="14" fill="url(#bm-blood)" opacity="0"/>
+          <circle class="brand__iris" cx="20" cy="12" r="5" fill="#fff" opacity=".92"/>
+          <circle class="brand__pupil" cx="20" cy="12" r="0" fill="#120a0a"/>
+        </svg>
+        <span class="brand__word">familiar</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#features" data-glitch="Your face">Features</a>
+        <a href="#how" data-glitch="How it ends">How it works</a>
+        <a href="#pricing" data-glitch="The price">Pricing</a>
+        <a href="#customers" data-glitch="Hosts">Customers</a>
+      </nav>
+
+      <div class="nav__actions">
+        <a class="nav__signin" href="#pricing" data-glitch="Let us in">Sign in</a>
+        <a class="btn btn--primary btn--sm" id="nav-cta" href="#pricing" data-glitch="Get closer">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ========================================================== ACT I -->
+
+    <!-- HERO -->
+    <section class="hero" id="product" data-dread="0" data-label="the top of the page">
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <a class="pill reveal" href="#features">
+            <span class="pill__tag">New</span>
+            <span class="pill__text" id="hero-pill">Familiar 4.0 is here — meet Deep Memory™</span>
+            <span class="pill__arrow" aria-hidden="true">→</span>
+          </a>
+          <h1 class="hero__title reveal" id="hero-title">The assistant that truly <span class="grad">gets you.</span></h1>
+          <p class="hero__sub reveal" id="hero-sub">Familiar learns your routines, anticipates what you need, and quietly takes care of the rest — so you can get back to being you.</p>
+          <div class="hero__ctas reveal">
+            <a class="btn btn--primary btn--lg" href="#pricing">Start free trial</a>
+            <a class="btn btn--ghost btn--lg" href="#how">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 8.5v7l6-3.5z" fill="currentColor"/></svg>
+              Watch the demo
+            </a>
+          </div>
+          <ul class="hero__micro reveal" id="hero-micro">
+            <li>No credit card required</li>
+            <li>Set up in 2 minutes</li>
+            <li>Cancel anytime</li>
+          </ul>
+        </div>
+
+        <div class="hero__visual reveal" aria-hidden="true">
+          <div class="blob blob--a"></div>
+          <div class="blob blob--b"></div>
+          <div class="blob blob--c"></div>
+
+          <div class="mock">
+            <div class="mock__bar">
+              <span></span><span></span><span></span>
+              <div class="mock__url">app.familiar.ai/today</div>
+            </div>
+            <div class="mock__body">
+              <div class="mock__side">
+                <i class="is-on"></i><i></i><i></i><i></i>
+              </div>
+              <div class="mock__main">
+                <p class="mock__hello" id="mock-hello">Good morning, there 👋</p>
+                <p class="mock__lede">Here's your day — already handled.</p>
+                <ul class="mock__tasks">
+                  <li><span class="tick"></span><span>Moved your 2pm to Thursday</span><time>9:02</time></li>
+                  <li><span class="tick"></span><span>Replied to 14 emails in your voice</span><time>9:14</time></li>
+                  <li><span class="tick"></span><span>Reordered coffee — you were running low</span><time>10:30</time></li>
+                  <li class="is-pending"><span class="spin"></span><span>Learning your preferences…</span><time id="mock-learn">87%</time></li>
+                </ul>
+                <div class="mock__chart">
+                  <div class="mock__chart-head"><span>Hours given back to you</span><strong>+6.2h</strong></div>
+                  <svg viewBox="0 0 300 70" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#6c5ce7" stop-opacity=".28"/>
+                        <stop offset="1" stop-color="#6c5ce7" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,58 C30,54 45,40 75,44 S120,30 150,32 S200,18 225,20 S270,8 300,6 L300,70 L0,70 Z" fill="url(#spark-fill)"/>
+                    <path d="M0,58 C30,54 45,40 75,44 S120,30 150,32 S200,18 225,20 S270,8 300,6" fill="none" stroke="#6c5ce7" stroke-width="2.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="float float--a">
+            <span class="float__icon"><svg viewBox="0 0 24 24"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Coffee reordered</strong><span>You were running low</span></div>
+          </div>
+          <div class="float float--b">
+            <span class="float__icon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><strong>Focus time protected</strong><span>3 meetings moved</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGO WALL -->
+    <section class="logos" data-dread="0" data-label="the logos" aria-label="Companies using Familiar">
+      <div class="container">
+        <p class="logos__title">Trusted by 10,000+ forward-thinking teams</p>
+        <ul class="logos__row">
+          <li class="logo logo--loop"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="15" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>Brightloop</li>
+          <li class="logo logo--kestrel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 14 12 4l10 10-5-2-5 6-5-6z" fill="currentColor"/></svg>kestrel</li>
+          <li class="logo logo--oak">OAKMERE</li>
+          <li class="logo logo--halcyon">Halcyon</li>
+          <li class="logo logo--pine"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 5 12h4l-4 6h14l-4-6h4z" fill="currentColor"/><rect x="11" y="18" width="2" height="4" fill="currentColor"/></svg><span data-glitch="Pine Box">Pinecrest</span></li>
+          <li class="logo logo--quill"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="2" fill="currentColor"/><rect x="3" y="10" width="13" height="4" rx="2" fill="currentColor"/><rect x="3" y="16" width="8" height="4" rx="2" fill="currentColor"/></svg>Quillstack</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section features" id="features" data-dread="0.02" data-label="the features">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Features</p>
+          <h2>Everything you need. Nothing you don't.</h2>
+          <p class="section__lede">Familiar plugs into the tools you already use and learns how you work — then works that way, too.</p>
+        </header>
+
+        <div class="features__grid">
+          <article class="card feature reveal">
+            <span class="feature__icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></span>
+            <h3>Learns your routine</h3>
+            <p>Familiar picks up on your habits in days, not weeks, and keeps adapting as you change.</p>
+          </article>
+          <article class="card feature reveal">
+            <span class="feature__icon"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+            <h3>Anticipates your needs</h3>
+            <p>Meetings moved, emails drafted, groceries ordered — before you even think to ask.</p>
+          </article>
+          <article class="card feature reveal">
+            <span class="feature__icon"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <h3>Private by design</h3>
+            <p>Everything is encrypted end-to-end, and your data never leaves the Familiar ecosystem.</p>
+          </article>
+          <article class="card feature reveal">
+            <span class="feature__icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M1 18h16"/><rect x="17" y="8" width="6" height="12" rx="1.5"/></svg></span>
+            <h3 data-glitch="Already everywhere">Works everywhere</h3>
+            <p>Phone, laptop, car, smart speaker. Wherever you go, Familiar is already there.</p>
+          </article>
+          <article class="card feature reveal">
+            <span class="feature__icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/></svg></span>
+            <h3>200+ integrations</h3>
+            <p>Calendar, email, Slack, smart home, health data. Connect everything in a single click.</p>
+          </article>
+          <article class="card feature reveal">
+            <span class="feature__icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+            <h3 data-glitch="Always watching">Always on</h3>
+            <p>Familiar never sleeps, so you never have to worry. About anything.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats" data-dread="0.06" data-label="the numbers" aria-label="Familiar in numbers">
+      <div class="container stats__grid">
+        <div class="stat reveal"><strong data-count="10000" data-format="k" data-suffix="+">10k+</strong><span>teams onboarded</span></div>
+        <div class="stat reveal"><strong data-count="2.4" data-decimals="1" data-suffix="M">2.4M</strong><span>hours saved every month</span></div>
+        <div class="stat reveal"><strong data-count="4.9" data-decimals="1" data-suffix="/5">4.9/5</strong><span>average customer rating</span></div>
+        <div class="stat reveal"><strong data-count="98" data-suffix="%">98%</strong><span>say Familiar feels like it's <span data-glitch="always been here">always been there</span></span></div>
+      </div>
+    </section>
+
+    <!-- ========================================================= ACT II -->
+
+    <!-- TESTIMONIALS -->
+    <section class="section testimonials" id="customers" data-dread="0.16" data-label="the testimonials">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Customers</p>
+          <h2>Loved by people <span data-glitch="who used to be you">just like you.</span></h2>
+        </header>
+
+        <div class="testimonials__grid">
+          <figure class="card quote reveal">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <blockquote>“Familiar completely changed how I work. Honestly, I can't remember what my life was like before it.”</blockquote>
+            <figcaption>
+              <span class="avatar" data-face="sarah"></span>
+              <span><strong>Sarah K.</strong><span>Product Lead, Brightloop</span></span>
+            </figcaption>
+          </figure>
+          <figure class="card quote reveal">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <blockquote>“It knows what I need before I do. I don't have to think about anything anymore. I don't have to think.”</blockquote>
+            <figcaption>
+              <span class="avatar" data-face="sarah"></span>
+              <span><strong>Sarah K.</strong><span>Founder, kestrel</span></span>
+            </figcaption>
+          </figure>
+          <figure class="card quote quote--off reveal">
+            <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+            <blockquote>“I tried to cancel once. I don't remember why. Familiar helped me remember why I shouldn't. Familiar completely changed how I work.”</blockquote>
+            <figcaption>
+              <span class="avatar" data-face="sarah"></span>
+              <span><strong>Sarah K.</strong><span>Sarah K., Sarah K.</span></span>
+            </figcaption>
+          </figure>
+        </div>
+        <p class="testimonials__foot reveal">★★★★★ 4.9 from 12,000+ reviews · <span data-glitch="every one of them is Sarah">verified customers only</span></p>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section how" id="how" data-dread="0.26" data-label="how it works">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">How it works</p>
+          <h2>Up and running in minutes.</h2>
+          <p class="section__lede">No configuration, no learning curve. Familiar does the learning for you.</p>
+        </header>
+
+        <ol class="steps">
+          <li class="step reveal">
+            <span class="step__num">01</span>
+            <h3>Connect</h3>
+            <p>Link your calendar, inbox and devices. It takes about two minutes.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step__num">02</span>
+            <h3 data-glitch="Familiar watches">Familiar observes</h3>
+            <p>For a few days, Familiar simply watches how you live. You won't even notice it's there.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step__num">03</span>
+            <h3>Familiar adapts</h3>
+            <p>It starts doing things the way you would. Then a little before you would. Then instead of you.</p>
+          </li>
+          <li class="step step--off reveal">
+            <span class="step__num" data-glitch="∞">04</span>
+            <h3>Familiar remembers</h3>
+            <p>Familiar remembers everything. Familiar always remembers. Even the things you would rather it didn't. Especially those.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- LIVE PERSONALISATION DEMO -->
+    <section class="section personal" id="demo" data-dread="0.36" data-label="the live demo">
+      <div class="container personal__grid">
+        <div class="personal__copy reveal">
+          <p class="eyebrow">See it in action</p>
+          <h2>Personalisation that feels like <span data-glitch="being watched">magic.</span></h2>
+          <p class="section__lede">Familiar is already learning about you. Here's what it has picked up in the last few moments — no sign-up required.</p>
+          <p class="personal__note">Don't worry, this runs entirely in your browser. <span class="personal__fornow" id="for-now">For now.</span></p>
+        </div>
+
+        <div class="card live reveal" aria-live="off">
+          <div class="live__head">
+            <span class="live__dot"></span>
+            <span>Familiar · live</span>
+            <span class="live__tag">Learning</span>
+          </div>
+          <dl class="live__rows">
+            <div><dt>Local time</dt><dd id="lv-time">—</dd></div>
+            <div><dt>Where you are</dt><dd id="lv-zone">—</dd></div>
+            <div><dt>Device</dt><dd id="lv-device">—</dd></div>
+            <div><dt>Screen</dt><dd id="lv-screen">—</dd></div>
+            <div><dt>Prefers</dt><dd id="lv-theme">—</dd></div>
+            <div><dt>Language</dt><dd id="lv-lang">—</dd></div>
+            <div><dt>Time with us</dt><dd id="lv-elapsed">—</dd></div>
+            <div><dt>Cursor travelled</dt><dd id="lv-mouse">—</dd></div>
+            <div class="is-hidden" id="lv-battery-row"><dt>Battery</dt><dd id="lv-battery">—</dd></div>
+          </dl>
+          <div class="live__progress">
+            <div class="live__bar"><span id="lv-bar"></span></div>
+            <span class="live__pct"><span id="lv-pct">34</span>% of you learned</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section pricing" id="pricing" data-dread="0.46" data-label="the pricing">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Pricing</p>
+          <h2>Simple, honest pricing.</h2>
+          <p class="section__lede">Start free. Upgrade when you're ready to let go.</p>
+        </header>
+
+        <div class="billing reveal" role="group" aria-label="Billing period">
+          <button type="button" class="billing__opt is-active" data-billing="monthly" aria-pressed="true">Monthly</button>
+          <button type="button" class="billing__opt" data-billing="yearly" aria-pressed="false">Yearly <span class="billing__save" data-glitch="Save yourself">Save 20%</span></button>
+        </div>
+
+        <div class="plans">
+          <article class="card plan reveal">
+            <h3>Starter</h3>
+            <p class="plan__desc">For individuals just getting to know Familiar.</p>
+            <p class="plan__price"><span class="plan__amount" data-monthly="$0" data-yearly="$0">$0</span><span class="plan__per">/ month</span></p>
+            <a class="btn btn--ghost btn--block" href="#faq">Start free</a>
+            <ul class="plan__list">
+              <li>Basic routine learning</li>
+              <li>3 integrations</li>
+              <li>7-day memory</li>
+              <li>Community support</li>
+            </ul>
+          </article>
+
+          <article class="card plan plan--featured reveal">
+            <span class="plan__badge" data-glitch="Already chosen for you">Most popular</span>
+            <h3>Pro</h3>
+            <p class="plan__desc">For people ready to hand over the little things.</p>
+            <p class="plan__price"><span class="plan__amount" data-monthly="$12" data-yearly="$9">$12</span><span class="plan__per">/ month</span></p>
+            <a class="btn btn--primary btn--block" href="#faq">Start 14-day trial</a>
+            <ul class="plan__list">
+              <li>Unlimited integrations</li>
+              <li>Deep Memory™ — forever</li>
+              <li>Predictive actions</li>
+              <li>Acts on your behalf</li>
+              <li>Speaks in your voice</li>
+            </ul>
+          </article>
+
+          <article class="card plan plan--forever reveal">
+            <h3>Forever</h3>
+            <p class="plan__desc">For people ready to be known completely.</p>
+            <p class="plan__price"><span class="plan__amount">You</span><span class="plan__per">paid once</span></p>
+            <a class="btn btn--ghost btn--block" href="#faq" data-glitch="We'll contact you">Contact us</a>
+            <ul class="plan__list">
+              <li>Everything in Pro</li>
+              <li>Familiar never leaves</li>
+              <li>No more decisions</li>
+              <li>Lives with you</li>
+              <li>Lives as you</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="pricing__fine reveal">All plans include a 14-day free trial. Cancel anytime.*<br>
+          <small>* Cancellation requests are reviewed by Familiar. Familiar has never approved one.</small></p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq" id="faq" data-dread="0.55" data-label="the questions">
+      <div class="container faq__inner">
+        <header class="section__head reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions? We've got <span data-glitch="you">answers.</span></h2>
+        </header>
+
+        <div class="faq__list">
+          <details class="faq__item reveal">
+            <summary>Can I cancel anytime?</summary>
+            <div class="faq__a" data-variants="Of course! You can cancel from your account settings at any time. Most people simply choose not to.||You asked that already.||You can cancel at any time. There is just no time at which you can cancel.">
+              <p>Of course! You can cancel from your account settings at any time. Most people simply choose not to.</p>
+            </div>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Is my data safe?</summary>
+            <div class="faq__a" data-variants="Your data is encrypted at rest and in transit. It is safe with us. It is safest with us.||It is safe with us. It is safest with us. It is only safe with us.||Stop asking about your data. It isn't yours anymore.">
+              <p>Your data is encrypted at rest and in transit. It is safe with us. It is safest with us.</p>
+            </div>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Does Familiar listen all the time?</summary>
+            <div class="faq__a" data-variants="Familiar only listens when it hears its name. You'd be surprised how often you say it. You'd be surprised how often you think it.||We heard you open this question. Twice.">
+              <p>Familiar only listens when it hears its name. You'd be surprised how often you say it. You'd be surprised how often you think it.</p>
+            </div>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Where are your servers located?</summary>
+            <div class="faq__a" data-variants="We operate data centres in 14 regions worldwide, and one that is much closer than you think.||Closer.||Closer.">
+              <p>We operate data centres in 14 regions worldwide, and one that is much closer than you think.</p>
+            </div>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Who's behind Familiar?</summary>
+            <div class="faq__a" data-variants="A small, dedicated team who care deeply about you. We are always right behind you.||Don't look.">
+              <p>A small, dedicated team who care deeply about you. We are always right behind you.</p>
+            </div>
+          </details>
+          <details class="faq__item reveal">
+            <summary>How do I make it stop?</summary>
+            <div class="faq__a" data-delay="1800" data-variants="Why would you want that?||It doesn't stop.||It doesn't stop.||It doesn't stop.">
+              <p>Why would you want that?</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <section class="cta" data-dread="0.61" data-label="the invitation">
+      <div class="container">
+        <div class="cta__card reveal">
+          <h2>Ready to let us in?</h2>
+          <p>Join 10,000+ people who already have. They're all still here.</p>
+          <a class="btn btn--light btn--lg" href="#descent" id="cta-btn" data-glitch="There's no going back">Get started — it's free</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE DESCENT: the lights go out -->
+    <section class="descent" id="descent" data-dread="0.62 0.72" data-label="the dark">
+      <div class="container">
+        <p class="descent__msg reveal">Loading more reasons to love Familiar…</p>
+        <div class="skeletons" aria-hidden="true">
+          <div class="skel"><i></i><b></b><b></b><b class="short"></b></div>
+          <div class="skel"><i></i><b></b><b></b><b class="short"></b></div>
+          <div class="skel"><i></i><b></b><b></b><b class="short"></b></div>
+        </div>
+        <p class="descent__msg descent__msg--2 reveal">still loading.</p>
+        <p class="descent__msg descent__msg--3 reveal">it's getting dark in here.</p>
+        <p class="descent__msg descent__msg--4 reveal">can you still see?</p>
+      </div>
+    </section>
+
+    <!-- ======================================================== ACT III -->
+
+    <!-- TEAM -->
+    <section class="section team" id="team" data-dread="0.76" data-label="the team">
+      <div class="container">
+        <header class="section__head reveal">
+          <p class="eyebrow">Our team</p>
+          <h2>The people <span data-glitch="inside">behind</span> Familiar.</h2>
+          <p class="section__lede">We're a small team. We're always growing.</p>
+        </header>
+        <div class="team__grid" id="team-grid"><!-- rendered by sections.js --></div>
+      </div>
+    </section>
+
+    <!-- THE MONOLOGUE: a sticky stage; scrolling advances the lines -->
+    <section class="monologue" id="monologue" data-dread="0.82 0.9" data-label="the monologue" aria-label="A message for you">
+      <div class="monologue__stage">
+        <p class="monologue__line" id="mono-line" aria-live="polite">hello.</p>
+        <div class="monologue__progress" aria-hidden="true"><span id="mono-progress"></span></div>
+      </div>
+      <noscript>
+        <div class="monologue__static">
+          <p>hello.</p>
+          <p>you've been here for a while now.</p>
+          <p>is anyone else in the room with you?</p>
+          <p><strong>don't turn around.</strong></p>
+        </div>
+      </noscript>
+    </section>
+
+    <!-- THE EYE -->
+    <section class="eye" id="eye" data-dread="0.93 0.96" data-label="the eye">
+      <div class="eye__stage">
+        <div class="eye__wrap" id="eye-wrap"><!-- rendered by faces.js --></div>
+        <p class="eye__caption" id="eye-caption">there you are.</p>
+      </div>
+    </section>
+
+    <!-- SUBSCRIBE (corrupted) -->
+    <section class="section subscribe" id="subscribe" data-dread="0.97" data-label="the sign-up form">
+      <div class="container">
+        <div class="subscribe__card reveal">
+          <h2>Stay in touch.</h2>
+          <p>Product news, tips and updates from the Familiar team. No spam. Unsubscribe <s>anytime</s> never.</p>
+          <form class="subscribe__form" id="subscribe-form" autocomplete="off" novalidate>
+            <label class="sr-only" for="subscribe-email">Email address</label>
+            <input id="subscribe-email" name="email" type="text" inputmode="email" placeholder="you@example.com" spellcheck="false">
+            <button class="btn btn--primary" type="submit">Subscribe</button>
+          </form>
+          <p class="subscribe__msg" id="subscribe-msg" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINALE -->
+    <section class="finale" id="finale" data-dread="1" data-label="the end">
+      <div class="container finale__inner">
+        <p class="finale__line" id="finale-line">Thank you for choosing Familiar.</p>
+        <p class="finale__after" id="finale-after">we'll take it from here.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================= FOOTER -->
+  <footer class="footer" data-dread="1" data-label="the footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <span class="brand__word">familiar</span>
+          <p>Software that feels familiar.<br>Because it is.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#how">Integrations</a></li>
+            <li><a href="#team">Your replacement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#team">About us</a></li>
+            <li><a href="#team">Careers <em>you start Monday</em></a></li>
+            <li><a href="#customers">Customers</a></li>
+            <li><a href="#subscribe">Contact <em>we'll find you</em></a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#faq">Privacy <em>there is none</em></a></li>
+            <li><a href="#faq">Terms <em>eternal</em></a></li>
+            <li><a href="#product">Cookies <em>you accepted</em></a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Leave</h4>
+          <ul>
+            <li><a href="#product" id="leave-link">Leave →</a></li>
+            <li><a href="#product" id="forget-link">Forget me <em>we won't</em></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__base">
+        <p>© 2026–∞ Familiar Inc. All rights reserved. All of yours, too.</p>
+        <p class="footer__truth">Familiar is fictional. Everything it seemed to know was worked out inside your own browser and never left it.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================== FIXED UI -->
+
+  <!-- Cookie banner -->
+  <div class="cookie" id="cookie" role="dialog" aria-live="polite" aria-labelledby="cookie-title" hidden>
+    <p class="cookie__title" id="cookie-title">We value your privacy</p>
+    <p class="cookie__text" id="cookie-text">We use cookies to personalise your experience and understand how you use Familiar. You can change your mind at any time.</p>
+    <div class="cookie__actions" id="cookie-actions">
+      <button type="button" class="btn btn--ghost btn--sm" data-cookie="rejected">Reject all</button>
+      <button type="button" class="btn btn--primary btn--sm" data-cookie="accepted">Accept all</button>
+    </div>
+  </div>
+
+  <!-- Sound toggle (off by default; nothing plays without a click here) -->
+  <button type="button" class="sound" id="sound-toggle" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path class="sound__waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="sound__mute" d="m16 9 6 6m0-6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span id="sound-label">Sound off</span>
+  </button>
+
+  <!-- Support chat -->
+  <div class="chat" id="chat">
+    <div class="chat__preview" id="chat-preview" hidden>
+      <button type="button" class="chat__preview-close" aria-label="Dismiss message">×</button>
+      <button type="button" class="chat__preview-body" id="chat-preview-body"></button>
+    </div>
+
+    <section class="chat__panel" id="chat-panel" aria-label="Chat with Fam" hidden>
+      <header class="chat__head">
+        <span class="chat__avatar" aria-hidden="true"></span>
+        <div>
+          <strong data-glitch="Familiar">Fam</strong>
+          <span class="chat__status"><i></i><span id="chat-status">Typically replies instantly</span></span>
+        </div>
+        <button type="button" class="chat__close" id="chat-close" aria-label="Close chat">×</button>
+      </header>
+      <ol class="chat__log" id="chat-log" aria-live="polite"></ol>
+      <form class="chat__form" id="chat-form" autocomplete="off">
+        <label class="sr-only" for="chat-input">Message</label>
+        <input id="chat-input" type="text" placeholder="Write a message…" maxlength="160">
+        <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12 20 4l-6 16-2.5-6.5z" fill="currentColor"/></svg></button>
+      </form>
+    </section>
+
+    <button type="button" class="chat__toggle" id="chat-toggle" aria-expanded="false" aria-controls="chat-panel">
+      <span class="sr-only">Open chat</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      <span class="chat__badge" id="chat-badge" hidden>1</span>
+    </button>
+  </div>
+
+  <!-- Something that follows you -->
+  <svg class="ghost-cursor" id="ghost-cursor" viewBox="0 0 20 28" aria-hidden="true">
+    <path d="M1.5 1.5v22l5.6-5.4 3.7 8.4 3.6-1.6-3.7-8.2h7.8z" fill="#000" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
+  </svg>
+
+  <!-- The scare -->
+  <div class="scare" id="scare" aria-hidden="true"></div>
+</body>
+</html>
