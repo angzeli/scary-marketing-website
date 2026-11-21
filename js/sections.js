@@ -1,5 +1,10 @@
 /* =============================================================================
    Familiar — section behaviour, top to bottom
+   -----------------------------------------------------------------------------
+   Every piece of copy that depends on state (dread, the visitor's session,
+   what they've clicked) is produced by a render function that reads that
+   state and calls F.t(). Each one is re-run on 'lang', so switching language
+   at any moment re-renders in place without resetting anything.
    ========================================================================== */
 (function () {
   'use strict';
@@ -19,13 +24,19 @@
   /* ================================================================ NAV == */
 
   const navCta = $('nav-cta');
-  F.on('dread', (d) => {
-    const text = d < 0.5 ? 'Get started' : d < 0.75 ? 'Get closer' : 'Stay';
-    if (navCta.dataset.orig !== text) {
-      F.setText(navCta, text);
-      navCta.dataset.glitch = d < 0.5 ? 'Get closer' : d < 0.75 ? 'Stay' : "Stay|Don't go|Stay with us";
-    }
-  });
+  let ctaState = '';
+  function renderCta() {
+    const d = F.dread;
+    const i = d < 0.5 ? 0 : d < 0.75 ? 1 : 2;
+    const state = i + F.lang;
+    if (state === ctaState) return;
+    ctaState = state;
+    navCta.dataset.glitch = F.t(`nav.cta.${i}.glitch`);
+    F.setText(navCta, F.t(`nav.cta.${i}`));
+  }
+  F.on('dread', renderCta);
+  F.on('lang', renderCta);
+  renderCta();
 
   /* The logo's highlight slowly becomes an iris, then an eye. */
   const mark = document.querySelector('.brand__mark');
@@ -78,51 +89,63 @@
   const mockHello = $('mock-hello');
   const mockLearn = $('mock-learn');
 
-  mockHello.textContent = `Good ${dayPart()}, there 👋`;
-
+  let returning = null; // { kind: 'leave' | 'return', awayMs }
   let learned = 87;
+
+  function renderHero() {
+    mockHello.textContent = F.t(`mock.${returning ? 'again' : 'hello'}.${dayPart()}`);
+    mockLearn.textContent = returning ? '100%' : learned + '%';
+    if (!returning) return; // the normal copy is page copy, handled by i18n.js
+    heroTitle.innerHTML = F.t('hero.wb.title');
+    heroSub.textContent =
+      returning.kind === 'leave'
+        ? F.t('hero.wb.leave')
+        : F.t('hero.wb.return', { away: F.fmtDuration(returning.awayMs) });
+    heroPill.textContent = F.t('hero.wb.pill');
+    heroMicro.innerHTML = F.t('hero.wb.micro');
+  }
+  F.on('lang', renderHero);
+
   setInterval(() => {
-    if (learned < 99 && !html.classList.contains('is-returning')) {
+    if (learned < 99 && !returning) {
       learned++;
       mockLearn.textContent = learned + '%';
     }
   }, 9000);
 
   function welcomeBack(kind, awayMs) {
+    returning = { kind, awayMs };
     html.classList.add('is-returning');
     F.floor = 0.1; // it never quite goes back to normal
-    heroTitle.innerHTML = 'Welcome back. <span class="grad">We missed you.</span>';
-    heroSub.textContent =
-      kind === 'leave'
-        ? "You tried to leave. You made it all the way back to the top. That's further than most."
-        : `You were away for ${F.fmtDuration(awayMs)}. We didn't move a thing. We've been right here the whole time.`;
-    heroPill.textContent = 'You came back';
-    heroMicro.innerHTML = '<li>No credit card required</li><li>Already set up</li><li>Cancel <s>anytime</s></li>';
-    mockHello.textContent = `Good ${dayPart()}, again.`;
-    mockLearn.textContent = '100%';
+    renderHero();
     F.refreshDread();
     F.emit('welcome-back', kind);
   }
 
+  renderHero();
   const seen = Number(F.store.get('seen'));
   if (seen) welcomeBack('return', Date.now() - seen);
 
   /* ============================================================== STATS == */
+  /* Formats differ by language (10k+ vs 10,000+, 2.4M vs 240萬), so each stat
+     remembers how far its count-up got and re-renders from there. */
 
+  const stats = $$('[data-count]');
+  const renderStat = (el) => {
+    const k = el._k === undefined ? 1 : el._k;
+    el.textContent = F.t(`stat.fmt.${el.dataset.stat}`, parseFloat(el.dataset.count) * (1 - Math.pow(1 - k, 3)));
+  };
   function countUp(el) {
-    const to = parseFloat(el.dataset.count);
-    const dec = Number(el.dataset.decimals || 0);
-    const suffix = el.dataset.suffix || '';
-    const fmt = (v) => (el.dataset.format === 'k' ? Math.round(v / 1000) + 'k' : v.toFixed(dec)) + suffix;
     if (F.reducedMotion) {
-      el.textContent = fmt(to);
+      el._k = 1;
+      renderStat(el);
       return;
     }
     const t0 = performance.now();
     const step = (now) => {
-      const k = F.clamp((now - t0) / 1600);
-      el.textContent = fmt(to * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(step);
+      el._k = F.clamp((now - t0) / 1600);
+      renderStat(el);
+      if (el._k < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
   }
@@ -134,46 +157,66 @@
       }
     });
   }, { threshold: 0.6 });
-  $$('[data-count]').forEach((el) => statIO.observe(el));
+  stats.forEach((el) => {
+    renderStat(el);
+    statIO.observe(el);
+  });
+  F.on('lang', () => stats.forEach(renderStat));
 
   /* =========================================================== LIVE DEMO == */
 
   const offset = -new Date().getTimezoneOffset() / 60;
   const utc = `UTC${offset >= 0 ? '+' : '−'}${Math.abs(offset)}`;
   $('lv-zone').textContent = env.city ? `${env.city} · ${utc}` : utc;
-  $('lv-device').textContent = `${env.browser} on ${env.os}`;
   $('lv-screen').textContent = `${env.w} × ${env.h}${devicePixelRatio > 1 ? ` @${Math.round(devicePixelRatio * 10) / 10}x` : ''}`;
-  $('lv-theme').textContent = `${env.dark ? 'Dark' : 'Light'} mode${F.reducedMotion ? ' · less motion' : ''}`;
   $('lv-lang').textContent = env.lang;
+
+  function renderLiveStatic() {
+    $('lv-device').textContent = F.t('live.device', {
+      browser: env.browser || F.t('live.unknownBrowser'),
+      os: env.os || F.t('live.unknownOs'),
+    });
+    $('lv-theme').textContent = F.t(env.dark ? 'live.dark' : 'live.light') + (F.reducedMotion ? F.t('live.lessMotion') : '');
+  }
+  renderLiveStatic();
 
   const lvTime = $('lv-time');
   const lvElapsed = $('lv-elapsed');
   const lvMouse = $('lv-mouse');
   const lvBar = $('lv-bar');
   const lvPct = $('lv-pct');
-  const weekday = new Date().toLocaleDateString([], { weekday: 'long' });
   function tickLive() {
+    const weekday = new Date().toLocaleDateString(F.locale(), { weekday: 'long' });
     lvTime.textContent = `${F.localTime()} · ${weekday}`;
     lvElapsed.textContent = F.fmtClock(F.elapsed());
-    lvMouse.textContent = M.mouseDistance > 0 ? `${Math.round(M.mouseDistance).toLocaleString()} px` : F.finePointer ? '0 px' : 'touch';
+    lvMouse.textContent =
+      M.mouseDistance > 0 ? `${Math.round(M.mouseDistance).toLocaleString('en-US')} px` : F.finePointer ? '0 px' : F.t('live.touch');
     const pct = Math.min(99, Math.round(34 + 58 * F.smooth(0.3, 0.62, F.dread) + Math.min(6, F.elapsed() / 30000)));
-    lvPct.textContent = pct;
+    lvPct.textContent = F.t('live.pct', { n: pct });
     lvBar.style.width = pct + '%';
   }
   tickLive();
   setInterval(tickLive, 1000);
 
+  let battery = null;
+  const renderBattery = () => {
+    if (battery) $('lv-battery').textContent = `${Math.round(battery.level * 100)}%${battery.charging ? F.t('live.charging') : ''}`;
+  };
   if (navigator.getBattery) {
     navigator.getBattery().then((b) => {
-      const show = () => {
-        $('lv-battery').textContent = `${Math.round(b.level * 100)}%${b.charging ? ' · charging' : ''}`;
-      };
+      battery = b;
       $('lv-battery-row').classList.remove('is-hidden');
-      show();
-      b.addEventListener('levelchange', show);
-      b.addEventListener('chargingchange', show);
+      renderBattery();
+      b.addEventListener('levelchange', renderBattery);
+      b.addEventListener('chargingchange', renderBattery);
     }).catch(() => {});
   }
+
+  F.on('lang', () => {
+    renderLiveStatic();
+    tickLive();
+    renderBattery();
+  });
 
   // "Don't worry, this runs entirely in your browser." ... and then, a little later:
   const forNow = $('for-now');
@@ -188,149 +231,171 @@
   /* ============================================================ PRICING == */
 
   const billingOpts = $$('.billing__opt');
+  let billing = 'monthly';
+  function renderBilling() {
+    billingOpts.forEach((o) => {
+      const on = o.dataset.billing === billing;
+      o.classList.toggle('is-active', on);
+      o.setAttribute('aria-pressed', String(on));
+    });
+    $$('.plan__amount[data-monthly]').forEach((a) => (a.textContent = a.dataset[billing]));
+    $$('[data-per]').forEach((p) => (p.textContent = F.t(`plan.per.${billing}`)));
+  }
   billingOpts.forEach((btn) =>
     btn.addEventListener('click', () => {
-      const mode = btn.dataset.billing;
-      billingOpts.forEach((o) => {
-        o.classList.toggle('is-active', o === btn);
-        o.setAttribute('aria-pressed', String(o === btn));
-      });
-      $$('.plan__amount[data-monthly]').forEach((a) => {
-        a.textContent = a.dataset[mode];
-        a.nextElementSibling.textContent = mode === 'yearly' ? '/ month, billed yearly' : '/ month';
-      });
+      billing = btn.dataset.billing;
+      renderBilling();
     })
   );
+  renderBilling();
+  F.on('lang', renderBilling);
 
   /* ================================================================ FAQ == */
-  /* Answers type themselves out — and are different every time you look. */
+  /* Answers type themselves out — and are different every time you look.
+     On a language switch, an answer that is mid-sentence is cancelled and
+     shown whole, in the new language; how many times each question has been
+     opened is kept. */
 
-  $$('.faq__item').forEach((item) => {
+  const faqItems = $$('.faq__item').map((item) => {
     const a = item.querySelector('.faq__a');
     const p = a.querySelector('p');
-    const variants = a.dataset.variants.split('||');
+    const key = a.dataset.i18nList;
     const delay = Number(a.dataset.delay || 0);
-    let opens = 0;
-    let token = 0;
+    const state = { opens: 0, shown: 0, token: 0 };
+    const variants = () => F.t(key);
 
     item.addEventListener('toggle', async () => {
       if (!item.open) return;
-      const text = variants[Math.min(opens, variants.length - 1)];
-      opens++;
-      const my = ++token;
+      const list = variants();
+      const idx = Math.min(state.opens, list.length - 1);
+      state.opens++;
+      state.shown = idx;
+      const my = ++state.token;
+      const text = list[idx];
       const caret = document.createElement('span');
       caret.className = 'caret';
       p.textContent = '';
       p.appendChild(caret);
       if (delay) await F.sleep(delay);
+      if (my !== state.token) return;
       if (F.reducedMotion) {
-        if (my === token) p.textContent = text;
+        p.textContent = text;
         return;
       }
-      const speed = 16 + F.dread * 26;
-      for (let i = 1; i <= text.length; i++) {
-        if (my !== token || !item.open) return;
-        p.textContent = text.slice(0, i);
+      const speed = (F.lang === 'zh-Hant' ? 34 : 16) + F.dread * 26;
+      const chars = Array.from(text);
+      for (let i = 1; i <= chars.length; i++) {
+        if (my !== state.token || !item.open) return;
+        p.textContent = chars.slice(0, i).join('');
         p.appendChild(caret);
-        await F.sleep(text[i - 1] === '.' ? speed * 9 : speed);
+        await F.sleep(/[.。？！?!]/.test(chars[i - 1]) ? speed * 9 : speed);
       }
       await F.sleep(900);
-      if (my === token) caret.remove();
+      if (my === state.token) caret.remove();
     });
+
+    return {
+      relang() {
+        state.token++; // stop any typing in progress
+        p.textContent = variants()[state.shown] || '';
+      },
+    };
   });
+  faqItems.forEach((f) => f.relang());
+  F.on('lang', () => faqItems.forEach((f) => f.relang()));
 
   /* =============================================================== TEAM == */
 
   const S = F.SARAH;
   const TEAM = [
-    { name: 'Marcus Hale', role: 'CEO & Co-founder', face: { skin: '#e8b894', hair: '#2b1d14', hairStyle: 'short', bg: '#3b3546', shirt: '#26222e' } },
-    { name: 'Priya Raman', role: 'CTO & Co-founder', face: { skin: '#c98e64', hair: '#120d0b', hairStyle: 'long', bg: '#34303e', shirt: '#4a3d5e', spread: 14.5, mouth: 'flat' } },
-    { name: 'Daniel Osei', role: 'Head of Design', face: { skin: '#8d5a3b', hair: '#0f0a08', hairStyle: 'curly', bg: '#302b34', shirt: '#2a2a2a', eyes: 'wide' }, gray: 0.2 },
-    { name: 'Sarah K.', role: 'Head of People', face: Object.assign({}, S, { bg: '#2e2a33', shirt: '#4b3f6b', eyes: 'void' }), gray: 0.35 },
-    { name: 'Sarah K.', role: 'Head of Customers', face: Object.assign({}, S, { bg: '#2a2428', shirt: '#3d2f45', eyes: 'void', mouth: 'wide', blush: false }), gray: 0.55 },
-    { redacted: true, role: 'Head of Memory', face: { skin: '#cdbfb2', hair: '#1a1412', hairStyle: 'bob', bg: '#221d1f', shirt: '#1d1a1c', eyes: 'closed', mouth: 'sewn', blush: false }, gray: 0.85 },
-    { name: '—', role: '&nbsp;', face: { skin: '#bdb4aa', hairStyle: 'none', bg: '#1b1718', shirt: '#151213', features: false, blush: false }, gray: 1, contrast: 1.25 },
-    { you: true, name: 'You', role: 'Joining soon. We saved you a seat.' },
+    { name: 'Marcus Hale', face: { skin: '#e8b894', hair: '#2b1d14', hairStyle: 'short', bg: '#3b3546', shirt: '#26222e' } },
+    { name: 'Priya Raman', face: { skin: '#c98e64', hair: '#120d0b', hairStyle: 'long', bg: '#34303e', shirt: '#4a3d5e', spread: 14.5, mouth: 'flat' } },
+    { name: 'Daniel Osei', face: { skin: '#8d5a3b', hair: '#0f0a08', hairStyle: 'curly', bg: '#302b34', shirt: '#2a2a2a', eyes: 'wide' }, gray: 0.2 },
+    { name: 'Sarah K.', face: Object.assign({}, S, { bg: '#2e2a33', shirt: '#4b3f6b', eyes: 'void' }), gray: 0.35 },
+    { name: 'Sarah K.', face: Object.assign({}, S, { bg: '#2a2428', shirt: '#3d2f45', eyes: 'void', mouth: 'wide', blush: false }), gray: 0.55 },
+    { redacted: true, face: { skin: '#cdbfb2', hair: '#1a1412', hairStyle: 'bob', bg: '#221d1f', shirt: '#1d1a1c', eyes: 'closed', mouth: 'sewn', blush: false }, gray: 0.85 },
+    { name: '—', face: { skin: '#bdb4aa', hairStyle: 'none', bg: '#1b1718', shirt: '#151213', features: false, blush: false }, gray: 1, contrast: 1.25 },
+    { you: true },
   ];
 
   const grid = $('team-grid');
   grid.innerHTML = TEAM.map((m) => {
     const photo = m.you ? F.silhouette() : F.face(m.face);
-    const name = m.redacted ? '<span class="redacted" role="img" aria-label="Name redacted"></span>' : F.escape(m.name);
+    const name = m.redacted ? '<span class="redacted" role="img"></span>' : F.escape(m.name || '');
     return `<article class="member reveal${m.you ? ' member--you' : ''}">
       <div class="member__photo" style="--gray:${m.gray || 0};--contrast:${m.contrast || 1}">${photo}</div>
       <h3>${name}</h3>
-      <p>${m.role}</p>
+      <p></p>
     </article>`;
   }).join('');
+  const cards = $$('.member', grid);
+
+  function renderTeam() {
+    cards.forEach((card, i) => {
+      const m = TEAM[i];
+      card.querySelector('p').textContent = m.you ? F.t('team.you.role') : F.t(`team.role.${i}`);
+      if (m.you) {
+        card.querySelector('h3').textContent = F.t('team.you.name');
+        const label = card.querySelector('.silhouette__label');
+        if (label) label.textContent = F.t('team.you.photo');
+      }
+      if (m.redacted) card.querySelector('.redacted').setAttribute('aria-label', F.t('team.redacted'));
+    });
+  }
+  renderTeam();
+  F.on('lang', renderTeam);
   F.watchFaces(grid);
-  $$('.reveal', grid).forEach(F.reveal);
+  cards.forEach(F.reveal);
 
   /* ========================================================== MONOLOGUE == */
 
-  const SECTION_LINES = {
-    pricing: ['the pricing', 'you wanted to know what the last plan costs.'],
-    faq: ['the questions', 'you wanted to know how to make it stop.'],
-    customers: ['the testimonials', "you noticed sarah, didn't you."],
-    demo: ['what we know about you', 'that was only what we chose to show you.'],
-    how: ['how it works', 'now you know how it ends.'],
-    features: ['the features', 'you liked what you saw.'],
-  };
+  const DWELL_SECTIONS = ['pricing', 'faq', 'customers', 'demo', 'how', 'features'];
 
   const lines = [
-    () => 'hello.',
-    () => `you've been here for <em>${F.fmtDuration(F.elapsed())}</em>.`,
+    () => F.t('mono.hello'),
+    () => F.t('mono.elapsed', { d: F.fmtDuration(F.elapsed()) }),
     () => {
       const h = new Date().getHours();
-      const t = `<em>${F.localTime()}</em>`;
-      if (h < 5) return `it's ${t} where you are. the middle of the night. everyone else is asleep.`;
-      if (h < 9) return `it's ${t}. so early. you're up before everyone else. almost everyone.`;
-      if (h < 18) return `it's ${t} where you are. broad daylight. that doesn't matter to us.`;
-      if (h < 21) return `it's ${t}. it's getting dark outside. have you checked the windows?`;
-      return `it's ${t} where you are. it's late. you should be in bed.`;
+      const slot = h < 5 ? 'night' : h < 9 ? 'early' : h < 18 ? 'day' : h < 21 ? 'dusk' : 'late';
+      return F.t(`mono.time.${slot}`, { t: F.localTime() });
     },
     () => {
       const n = M.scrollUps;
-      if (n === 0) return "you never scrolled back up. not once. you never look back, do you?";
-      if (n === 1) return 'you scrolled back up once. something made you want to check.';
-      return `you scrolled back up <em>${n} times</em>. what were you looking for?`;
+      return F.t(n === 0 ? 'mono.scroll.0' : n === 1 ? 'mono.scroll.1' : 'mono.scroll.n', { n });
     },
     () => {
       let best = null;
       let ms = 0;
-      for (const key of Object.keys(SECTION_LINES)) {
+      for (const key of DWELL_SECTIONS) {
         if ((M.dwell[key] || 0) > ms) {
           ms = M.dwell[key];
           best = key;
         }
       }
-      if (!best || ms < 4000) return "you didn't stop to read anything. you were in such a hurry to get here.";
-      const [label, remark] = SECTION_LINES[best];
-      return `you spent <em>${Math.round(ms / 1000)} seconds</em> on ${label}. ${remark}`;
+      if (!best || ms < 4000) return F.t('mono.dwell.none');
+      return F.t('mono.dwell', {
+        s: Math.round(ms / 1000),
+        label: F.t(`mono.sec.${best}.label`),
+        remark: F.t(`mono.sec.${best}.remark`),
+      });
     },
-    () => {
-      if (M.cookie === 'accepted') return 'you accepted all cookies without reading a word. nobody ever reads them.';
-      if (M.cookie === 'rejected') return 'you clicked <em>reject all</em>. as if that was ever up to you.';
-      return 'you never answered the cookie banner. we took that as a yes.';
-    },
+    () => F.t(`mono.cookie.${M.cookie === 'accepted' ? 'accepted' : M.cookie === 'rejected' ? 'rejected' : 'none'}`),
     () => {
       const last = M.chatMessages[M.chatMessages.length - 1];
       if (last) {
-        const short = last.length > 40 ? last.slice(0, 38) + '…' : last;
-        return `you told me <em>“${F.escape(short)}”</em>. i haven't forgotten. i don't forget.`;
+        const chars = Array.from(last);
+        const short = chars.length > 40 ? chars.slice(0, 38).join('') + '…' : last;
+        return F.t('mono.chat.msg', { msg: F.escape(short) });
       }
-      if (M.chatOpened) return 'you opened the chat and said nothing. i was waiting for you.';
-      return "i've been messaging you. you never answered. that's alright. i'm patient.";
+      return F.t(M.chatOpened ? 'mono.chat.opened' : 'mono.chat.none');
     },
-    () => `your screen is <em>${env.w} × ${env.h}</em> pixels. that's all that's between us.`,
+    () => F.t('mono.screen', { w: env.w, h: env.h }),
     () => {
       const n = M.hiddenCount;
-      if (n === 0) return "you haven't looked away once. good. keep looking at us.";
-      if (n === 1) return 'you left this tab once. you came back. they always come back.';
-      return `you left this tab <em>${n} times</em>. you came back every time.`;
+      return F.t(n === 0 ? 'mono.hidden.0' : n === 1 ? 'mono.hidden.1' : 'mono.hidden.n', { n });
     },
-    () => 'is anyone else in the room with you?',
-    () => "<strong>don't turn around.</strong>",
+    () => F.t('mono.room'),
+    () => F.t('mono.turn'),
   ];
 
   const mono = $('monologue');
@@ -374,31 +439,46 @@
   }
   F.on('scroll', monoUpdate);
 
+  // re-say the current line in the new language, without the fade
+  F.on('lang', () => {
+    monoToken++;
+    monoLine.innerHTML = lines[Math.max(0, monoIdx)]();
+    monoLine.classList.remove('is-out');
+  });
+  monoLine.innerHTML = lines[0]();
+
   /* ================================================================ EYE == */
 
   const eyeSection = $('eye');
   const eyeWrap = $('eye-wrap');
   const eyeCaption = $('eye-caption');
-  const CAPTIONS = ['there you are.', "we've been watching you for a long time.", 'come closer.', 'closer.'];
   let capIdx = 0;
   let capToken = 0;
+  const caption = (i) => F.t('eye.captions')[i];
+  eyeCaption.textContent = caption(0);
 
   F.on('scroll', () => {
     const r = eyeSection.getBoundingClientRect();
     if (r.bottom < 0 || r.top > innerHeight) return;
     const p = F.clamp(-r.top / (r.height - innerHeight));
     eyeWrap.style.setProperty('--eye-scale', (1 + p * p * 0.95).toFixed(3));
-    const i = Math.min(CAPTIONS.length - 1, Math.floor(p * CAPTIONS.length));
+    const count = F.t('eye.captions').length;
+    const i = Math.min(count - 1, Math.floor(p * count));
     if (i !== capIdx) {
       capIdx = i;
       const my = ++capToken;
       eyeCaption.classList.add('is-out');
       setTimeout(() => {
         if (my !== capToken) return;
-        eyeCaption.textContent = CAPTIONS[i];
+        eyeCaption.textContent = caption(i);
         eyeCaption.classList.remove('is-out');
       }, F.reducedMotion ? 0 : 600);
     }
+  });
+  F.on('lang', () => {
+    capToken++;
+    eyeCaption.textContent = caption(capIdx);
+    eyeCaption.classList.remove('is-out');
   });
 
   /* ========================================================== SUBSCRIBE == */
@@ -406,22 +486,34 @@
 
   const subForm = $('subscribe-form');
   const subInput = $('subscribe-email');
+  const subBtn = $('subscribe-btn');
   const subMsg = $('subscribe-msg');
-  const PHRASE = 'we already have it. ';
-  subInput.addEventListener('input', () => {
-    const n = subInput.value.length;
-    let s = '';
-    while (s.length < n) s += PHRASE;
-    subInput.value = s.slice(0, n);
-  });
+  let subDone = false;
+  let subMsgKey = '';
+
+  const overwrite = () => {
+    const n = Array.from(subInput.value).length;
+    const phrase = Array.from(F.t('sub.phrase'));
+    let out = '';
+    for (let i = 0; i < n; i++) out += phrase[i % phrase.length];
+    subInput.value = out;
+  };
+  function renderSub() {
+    subBtn.textContent = F.t(subDone ? 'sub.done' : 'sub.button');
+    subMsg.textContent = subMsgKey ? F.t(subMsgKey) : '';
+    if (subInput.value) overwrite();
+  }
+  subInput.addEventListener('input', overwrite);
   subForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const btn = subForm.querySelector('button');
-    btn.textContent = 'Subscribed';
-    btn.disabled = true;
+    subDone = true;
+    subMsgKey = subInput.value ? 'sub.msg.typed' : 'sub.msg.empty';
+    subBtn.disabled = true;
     subInput.disabled = true;
-    subMsg.textContent = subInput.value ? 'You were always subscribed.' : "you don't have to type it. we already have it.";
+    renderSub();
   });
+  renderSub();
+  F.on('lang', renderSub);
 
   /* ======================================================= FINALE/SCARE == */
 
@@ -484,7 +576,23 @@
   /* ========================================================= COOKIES == */
 
   const cookie = $('cookie');
+  const cookieBtns = $$('[data-cookie]', cookie);
   let cookiePhase = 1;
+
+  /* Buttons are relabelled in place (never re-created) so keyboard focus
+     survives a language switch. */
+  function renderCookie() {
+    const p2 = cookiePhase === 2;
+    $('cookie-title').textContent = F.t(p2 ? 'cookie2.title' : 'cookie.title');
+    $('cookie-text').textContent = F.t(p2 ? 'cookie2.text' : 'cookie.text');
+    cookieBtns[0].textContent = F.t(p2 ? 'cookie2.accept' : 'cookie.reject');
+    cookieBtns[1].textContent = F.t(p2 ? 'cookie2.accept' : 'cookie.accept');
+    cookieBtns[0].dataset.cookie = p2 ? 'x' : 'rejected';
+    cookieBtns[1].dataset.cookie = p2 ? 'x' : 'accepted';
+  }
+  renderCookie();
+  F.on('lang', renderCookie);
+
   setTimeout(() => {
     if (cookiePhase === 1) cookie.hidden = false;
   }, 1400);
@@ -499,11 +607,7 @@
   F.on('dread', (d) => {
     if (cookiePhase === 1 && d > 0.8) {
       cookiePhase = 2;
-      $('cookie-title').textContent = 'We value you';
-      $('cookie-text').textContent = "We've already personalised your experience. Now we're personalising you.";
-      $('cookie-actions').innerHTML =
-        '<button type="button" class="btn btn--ghost btn--sm" data-cookie="x">Accept</button>' +
-        '<button type="button" class="btn btn--primary btn--sm" data-cookie="x">Accept</button>';
+      renderCookie();
       cookie.hidden = false;
     }
   });
