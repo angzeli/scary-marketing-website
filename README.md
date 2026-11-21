@@ -63,15 +63,56 @@ Everything hangs off one number: **dread**, from `0` (top of the page) to
 - Other modules subscribe with `Familiar.on('dread', d => …)`.
 
 ```
-index.html        all markup, top to bottom
-css/styles.css    styles; colours come from the live custom properties
-js/core.js        utilities, dread engine, session observer, glitch, tab title/favicon
-js/faces.js       SVG face generator, cursor-tracking pupils, the eye, the scare
-js/audio.js       opt-in Web Audio soundscape (all synthesised, no audio files)
-js/chat.js        "Fam", the support chat
-js/sections.js    per-section behaviour (pricing, FAQ, team, monologue, …)
-assets/           favicons
+index.html             all markup, top to bottom (and all English page copy)
+css/styles.css         styles; colours come from the live custom properties
+js/core.js             utilities, dread engine, session observer, glitch, tab title/favicon
+js/strings.js          message dictionaries: generated English + all Traditional Chinese
+js/i18n.js             language engine: F.t(), F.setLang(), the EN | 繁中 switch
+js/faces.js            SVG face generator, cursor-tracking pupils, the eye, the scare
+js/audio.js            opt-in Web Audio soundscape (all synthesised, no audio files)
+js/chat.js             "Fam", the support chat
+js/sections.js         per-section behaviour (pricing, FAQ, team, monologue, …)
+scripts/check-i18n.js  fails if any language is missing a message (runs in CI)
+assets/                favicons
 ```
+
+## Languages
+
+The site is available in **English** and **Traditional Chinese (繁體中文, Taiwan)**.
+Use the `EN | 繁中` switch in the nav. You can switch at any point, even
+halfway through the ending: whatever is on screen re-renders in place and
+you stay where you were in the story.
+
+The language is chosen in this order:
+
+1. `?lang=zh-Hant` or `?lang=en` in the URL
+2. the visitor's last choice
+3. the browser's languages: `zh-TW`, `zh-HK`, `zh-MO` and `zh-Hant*` get
+   Chinese, everything else gets English
+
+**How copy is organised**
+
+- English page copy lives in `index.html`, marked with `data-i18n="key"`
+  (text), `data-i18n-html` (markup), `data-i18n-attr="aria-label:key"`
+  (attributes) or `data-i18n-list` (FAQ answer variants). `js/i18n.js` reads
+  it from the page at start-up, so the HTML stays the single source of truth
+  and works without JavaScript.
+- Text that JavaScript generates (Fam, the monologue, durations, titles, …)
+  lives in the `en` block of `js/strings.js`. The `zh-Hant` block translates
+  every key.
+- A glitching element's alternate text is the key plus `.glitch`, e.g.
+  `feat.6.title.glitch`: 全天候運作 → 全天候監視.
+- Anything rendered from state re-renders on `Familiar.on('lang', …)`.
+
+**Adding or changing copy:** add the key in both places, then run
+
+```sh
+node scripts/check-i18n.js
+```
+
+It fails on a missing key, an extra key, a placeholder or HTML-tag mismatch,
+or a FAQ that has a different number of answers in each language. CI runs
+it on every pull request.
 
 ## Deploying
 
